@@ -41,7 +41,10 @@ type Mutation {
         @field(
             resolver: "Joselfonseca\\LighthouseGraphQLPassport\\GraphQL\\Mutations\\ResetPassword@resolve"
         )
-    register(input: RegisterInput @spread): RegisterResponse!
+    register(name: String @rules(apply: ["required", "string"]),
+    email: String @rules(apply: ["required", "email", "unique:users,email"]),
+    password: String @rules(apply: ["required", "confirmed", "min:8"]),
+    password_confirmation: String): RegisterResponse!
         @field(
             resolver: "Joselfonseca\\LighthouseGraphQLPassport\\GraphQL\\Mutations\\Register@resolve"
         )
