@@ -1,0 +1,103 @@
+"A datetime string with format `Y-m-d H:i:s`, e.g. `2018-01-01 13:00:00`."
+scalar DateTime
+    @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
+
+"A date string with format `Y-m-d`, e.g. `2011-05-23`."
+scalar Date @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Date")
+
+type Query {
+    users: [User!]!
+        @middleware(checks: ["auth:api"])
+        @paginate(defaultCount: 10)
+    user(id: ID @eq): User @find
+    me: User @auth @middleware(checks: ["auth:api"])
+
+    bits(orderBy: _ @orderBy): [Bit!]! @middleware(checks: ["auth:api"]) @paginate(defaultCount: 10)
+    bit(id: ID @eq): Bit @find
+}
+
+type Mutation {
+    login(input: LoginInput @spread): AuthPayload!
+        @field(
+            resolver: "Joselfonseca\\LighthouseGraphQLPassport\\GraphQL\\Mutations\\Login@resolve"
+        )
+    refreshToken(input: RefreshTokenInput @spread): RefreshTokenPayload!
+        @field(
+            resolver: "Joselfonseca\\LighthouseGraphQLPassport\\GraphQL\\Mutations\\RefreshToken@resolve"
+        )
+    logout: LogoutResponse!
+        @field(
+            resolver: "Joselfonseca\\LighthouseGraphQLPassport\\GraphQL\\Mutations\\Logout@resolve"
+        )
+    forgotPassword(
+        input: ForgotPasswordInput! @spread
+    ): ForgotPasswordResponse!
+        @field(
+            resolver: "Joselfonseca\\LighthouseGraphQLPassport\\GraphQL\\Mutations\\ForgotPassword@resolve"
+        )
+    updateForgottenPassword(
+        input: NewPasswordWithCodeInput @spread
+    ): ForgotPasswordResponse!
+        @field(
+            resolver: "Joselfonseca\\LighthouseGraphQLPassport\\GraphQL\\Mutations\\ResetPassword@resolve"
+        )
+    register(input: RegisterInput @spread): RegisterResponse!
+        @field(
+            resolver: "Joselfonseca\\LighthouseGraphQLPassport\\GraphQL\\Mutations\\Register@resolve"
+        )
+    socialLogin(input: SocialLoginInput! @spread): AuthPayload!
+        @field(
+            resolver: "Joselfonseca\\LighthouseGraphQLPassport\\GraphQL\\Mutations\\SocialLogin@resolve"
+        )
+    verifyEmail(input: VerifyEmailInput! @spread): AuthPayload!
+        @field(
+            resolver: "Joselfonseca\\LighthouseGraphQLPassport\\GraphQL\\Mutations\\VerifyEmail@resolve"
+        )
+
+    createBit(
+        title: String @rules(apply: ["required"])
+        snippet: String @rules(apply: ["required"])
+    ): Bit
+        @field(resolver: "App\\GraphQL\\Mutations\\BitMutator")
+        @middleware(checks: ["auth:api"])
+
+    replyBit(
+        bitId: Int! @rename(attribute: "bit_id") @rules(apply: ["required"])
+        reply: String! @rules(apply: ["required"])
+    ): Reply! @create
+
+    #likeBit(bit_id: ID! @rules(apply: ["required"])): Like! @create
+    #unlikeBit(bit_id: ID! @rules(apply: ["required"])): Like! @delete
+}
+
+type User {
+    id: ID!
+    name: String!
+    email: String!
+    created_at: DateTime!   
+    updated_at: DateTime!
+    bits(first: Int!, page: Int!): [Bit!]! @hasMany(type: "paginator")
+}
+
+type Bit {
+    id: ID!
+    user_id: ID!
+    title: String!
+    snippet: String!
+    created_at: DateTime!
+    updated_at: DateTime!
+    user: User! @belongsTo
+    replies: [Reply!]! @hasMany
+    likes_count: Int! @count(relation: "likes")
+}
+
+type Reply {
+    id: ID!
+    # user_id: ID!
+    # bit_id: ID!
+    reply: String!
+    created_at: DateTime!
+    updated_at: DateTime!
+    bit: Bit! @belongsTo
+    user: User! @belongsTo
+}
