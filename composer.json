@@ -10,11 +10,11 @@
     "require": {
         "php": "^7.2",
         "fideloper/proxy": "^4.0",
-        "joselfonseca/lighthouse-graphql-passport-auth": "^3.0",
         "laravel/framework": "^6.2",
         "laravel/passport": "^8.4",
         "laravel/tinker": "^2.0",
-        "nuwave/lighthouse": "^4.9"
+        "nuwave/lighthouse": "^4.9",
+        "joselfonseca/lighthouse-graphql-passport-auth": "^3.0"
     },
     "require-dev": {
         "facade/ignition": "^1.4",

@@ -12,12 +12,24 @@ type Query {
     user(id: ID @eq): User @find
     me: User @auth @middleware(checks: ["auth:api"])
 
-    bits(orderBy: _ @orderBy): [Bit!]! @middleware(checks: ["auth:api"]) @paginate(defaultCount: 10)
+    bits(orderBy: _ @orderBy): [Bit!]!
+        @middleware(checks: ["auth:api"])
+        @paginate(defaultCount: 10)
     bit(id: ID @eq): Bit @find
 }
 
 type Mutation {
-    login(input: LoginInput @spread): AuthPayload!
+    login(
+        username: String
+            @rules(
+                apply: ["required", "email"]
+                messages: {
+                    required: "The email field is required."
+                    email: "The email must be a valid email address."
+                }
+            )
+        password: String @rules(apply: ["required", "string"])
+    ): AuthPayload!
         @field(
             resolver: "Joselfonseca\\LighthouseGraphQLPassport\\GraphQL\\Mutations\\Login@resolve"
         )
@@ -30,21 +42,26 @@ type Mutation {
             resolver: "Joselfonseca\\LighthouseGraphQLPassport\\GraphQL\\Mutations\\Logout@resolve"
         )
     forgotPassword(
-        input: ForgotPasswordInput! @spread
+        email: String @rules(apply: ["required", "email", "exists:users"])
     ): ForgotPasswordResponse!
         @field(
             resolver: "Joselfonseca\\LighthouseGraphQLPassport\\GraphQL\\Mutations\\ForgotPassword@resolve"
         )
     updateForgottenPassword(
-        input: NewPasswordWithCodeInput @spread
+        email: String @rules(apply: ["required", "email"])
+        token: String @rules(apply: ["required", "string"])
+        password: String @rules(apply: ["required", "confirmed", "min:8"])
+        password_confirmation: String
     ): ForgotPasswordResponse!
         @field(
             resolver: "Joselfonseca\\LighthouseGraphQLPassport\\GraphQL\\Mutations\\ResetPassword@resolve"
         )
-    register(name: String @rules(apply: ["required", "string"]),
-    email: String @rules(apply: ["required", "email", "unique:users,email"]),
-    password: String @rules(apply: ["required", "confirmed", "min:8"]),
-    password_confirmation: String): RegisterResponse!
+    register(
+        name: String @rules(apply: ["required", "string"])
+        email: String @rules(apply: ["required", "email", "unique:users,email"])
+        password: String @rules(apply: ["required", "confirmed", "min:8"])
+        password_confirmation: String
+    ): RegisterResponse!
         @field(
             resolver: "Joselfonseca\\LighthouseGraphQLPassport\\GraphQL\\Mutations\\Register@resolve"
         )
@@ -77,7 +94,7 @@ type User {
     id: ID!
     name: String!
     email: String!
-    created_at: DateTime!   
+    created_at: DateTime!
     updated_at: DateTime!
     bits(first: Int!, page: Int!): [Bit!]! @hasMany(type: "paginator")
 }

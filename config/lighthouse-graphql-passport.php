@@ -63,4 +63,8 @@ return [
         'base_url' => env('FRONT_URL') . '/email-verify',
     ],
 
+    'reset_password' => [
+        'base_url' => env('FRONT_URL')
+    ]
+
 ];
