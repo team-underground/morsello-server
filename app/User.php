@@ -7,10 +7,11 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\GraphQL\Traits\SendPasswordResetRequest;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Joselfonseca\LighthouseGraphQLPassport\HasSocialLogin;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, Notifiable, SendPasswordResetRequest;
+    use HasApiTokens, Notifiable, SendPasswordResetRequest, HasSocialLogin;
 
     /**
      * The attributes that are mass assignable.
@@ -18,7 +19,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password', 'provider', 'provider_id', 'avatar'
     ];
 
     /**
