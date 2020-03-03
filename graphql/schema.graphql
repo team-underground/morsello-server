@@ -89,8 +89,9 @@ type Mutation {
         reply: String! @rules(apply: ["required"])
     ): Reply! @create
 
-    #likeBit(bit_id: ID! @rules(apply: ["required"])): Like! @create
-    #unlikeBit(bit_id: ID! @rules(apply: ["required"])): Like! @delete
+    likeBit(bitId: Int): Bit
+        @field(resolver: "App\\GraphQL\\Mutations\\LikeMutator")
+        @middleware(checks: ["auth:api"])
 }
 
 type User {
@@ -111,6 +112,7 @@ type Bit {
     updated_at: DateTime!
     user: User! @belongsTo
     replies: [Reply!]! @hasMany
+    likes: [Like!]! @hasMany
     likes_count: Int! @count(relation: "likes")
 }
 
@@ -123,4 +125,8 @@ type Reply {
     updated_at: DateTime!
     bit: Bit! @belongsTo
     user: User! @belongsTo
+}
+type Like {
+    user_id: ID
+    bit_id: ID
 }
