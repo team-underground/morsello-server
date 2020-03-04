@@ -15,7 +15,10 @@ type Query {
     bits(orderBy: _ @orderBy): [Bit!]!
         @middleware(checks: ["auth:api"])
         @paginate(defaultCount: 10)
-    bit(id: ID @eq): Bit @find
+    bit(id: ID @eq): Bit @find @middleware(checks: ["auth:api"])
+    bookmarks(first: Int, page: Int): [Bit!]!
+        @paginate(builder: "App\\Bookmark@allBookmarks")
+        @middleware(checks: ["auth:api"])
 }
 
 type Mutation {
@@ -84,13 +87,17 @@ type Mutation {
         @field(resolver: "App\\GraphQL\\Mutations\\BitMutator")
         @middleware(checks: ["auth:api"])
 
-    replyBit(
-        bitId: Int! @rename(attribute: "bit_id") @rules(apply: ["required"])
-        reply: String! @rules(apply: ["required"])
-    ): Reply! @create
+    # replyBit(
+    #     bitId: Int! @rename(attribute: "bit_id") @rules(apply: ["required"])
+    #     reply: String! @rules(apply: ["required"])
+    # ): Reply! @create
 
     likeBit(bitId: Int): Bit
         @field(resolver: "App\\GraphQL\\Mutations\\LikeMutator")
+        @middleware(checks: ["auth:api"])
+
+    bookmarkBit(bitId: Int): Bit
+        @field(resolver: "App\\GraphQL\\Mutations\\BookmarkMutator")
         @middleware(checks: ["auth:api"])
 }
 
@@ -101,6 +108,8 @@ type User {
     created_at: DateTime!
     updated_at: DateTime!
     bits(first: Int!, page: Int!): [Bit!]! @hasMany(type: "paginator")
+    bookmarks(first: Int!, page: Int!): [Bit!]!
+        @belongsToMany(relation: "bookmarks", type: "paginator")
 }
 
 type Bit {
@@ -111,22 +120,24 @@ type Bit {
     created_at: DateTime!
     updated_at: DateTime!
     user: User! @belongsTo
-    replies: [Reply!]! @hasMany
-    likes: [Like!]! @hasMany
+    # replies: [Reply!]! @hasMany
+    # likes: [Like!]! @hasMany
     likes_count: Int! @count(relation: "likes")
+    isLiked: Boolean! @method(name: "isLiked")
+    isBookmarked: Boolean! @method(name: "isBookmarked")
 }
 
-type Reply {
-    id: ID!
-    # user_id: ID!
-    # bit_id: ID!
-    reply: String!
-    created_at: DateTime!
-    updated_at: DateTime!
-    bit: Bit! @belongsTo
-    user: User! @belongsTo
-}
-type Like {
-    user_id: ID
-    bit_id: ID
-}
+# type Reply {
+#     id: ID!
+#     # user_id: ID!
+#     # bit_id: ID!
+#     reply: String!
+#     created_at: DateTime!
+#     updated_at: DateTime!
+#     bit: Bit! @belongsTo
+#     user: User! @belongsTo
+# }
+# type Like {
+#     user_id: ID
+#     bit_id: ID
+# }

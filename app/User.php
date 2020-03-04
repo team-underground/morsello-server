@@ -3,10 +3,13 @@
 namespace App;
 
 use Laravel\Passport\HasApiTokens;
+use GraphQL\Type\Definition\ResolveInfo;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\GraphQL\Traits\SendPasswordResetRequest;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Joselfonseca\LighthouseGraphQLPassport\HasSocialLogin;
 
 class User extends Authenticatable
@@ -43,5 +46,15 @@ class User extends Authenticatable
     public function bits()
     {
         return $this->hasMany(Bit::class)->orderBy('created_at', 'DESC');
+    }
+
+    public function likes(): BelongsToMany
+    {
+        return $this->belongsToMany(Bit::class, 'likes', 'user_id', 'bit_id');
+    }
+
+    public function bookmarks(): BelongsToMany
+    {
+        return $this->belongsToMany(Bit::class, 'bookmarks', 'user_id', 'bit_id');
     }
 }
