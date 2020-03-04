@@ -4,9 +4,10 @@ namespace App\GraphQL\Mutations;
 
 use App\Bit;
 use GraphQL\Type\Definition\ResolveInfo;
+use Illuminate\Support\Facades\Log;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
-class LikeMutator
+class BookmarkMutator
 {
     /**
      * Return a value for the field.
@@ -21,7 +22,7 @@ class LikeMutator
     {
         $bit = Bit::find($args['bitId']);
 
-        auth()->user()->likes()->toggle($bit->id);
+        auth()->user()->bookmarks()->toggle($bit->id);
 
         return $bit;
     }
