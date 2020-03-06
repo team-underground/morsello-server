@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
         factory(User::class, 10)->create();
         factory(Bit::class, 50)->create();
         factory(Reply::class, 50)->create();
-        factory(Like::class, 50)->create();
+        // factory(Like::class, 50)->create();
+
     }
 }
