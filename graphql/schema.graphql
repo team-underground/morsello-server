@@ -6,6 +6,7 @@ scalar DateTime
 scalar Date @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Date")
 
 type Query {
+    categories: [Category!]! @all
     users: [User!]!
         @middleware(checks: ["auth:api"])
         @paginate(defaultCount: 10)
@@ -99,6 +100,11 @@ type Mutation {
     bookmarkBit(bitId: Int): Bit
         @field(resolver: "App\\GraphQL\\Mutations\\BookmarkMutator")
         @middleware(checks: ["auth:api"])
+}
+
+type Category {
+    id: ID!
+    name: String!
 }
 
 type User {
