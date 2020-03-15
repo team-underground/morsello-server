@@ -2,8 +2,10 @@
 
 namespace App;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Bit extends Model
 {
@@ -40,5 +42,15 @@ class Bit extends Model
     public function isBookmarked(): bool
     {
         return $this->bookmarks->contains('id', auth()->id());
+    }
+
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(Category::class, 'tags');
+    }
+
+    public function associatedTags()
+    {
+        return $this->tags->sortBy('name')->pluck('name');
     }
 }
