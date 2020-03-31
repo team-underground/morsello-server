@@ -1,78 +1,96 @@
-<p align="center"><img src="https://res.cloudinary.com/dtfbvvkyp/image/upload/v1566331377/laravel-logolockup-cmyk-red.svg" width="400"></p>
+# Morselo-server
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
-</p>
+> Morselo - the daily code excerpts for the developers. Collect & organize code, snippets and notes. Manage and share your snippets with ease.
 
-## About Laravel
+## Project setup
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+For starting local development,
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Cloning the project
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+```
+git clone git@github.com:team-underground/morselo-server.git
+```
 
-## Learning Laravel
+cd to the project and run:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+```
+composer install
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+copy env file
 
-## Laravel Sponsors
+```
+cp .env.example .env
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+Setup database credential and run
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[British Software Development](https://www.britishsoftware.co)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- [UserInsights](https://userinsights.com)
-- [Fragrantica](https://www.fragrantica.com)
-- [SOFTonSOFA](https://softonsofa.com/)
-- [User10](https://user10.com)
-- [Soumettre.fr](https://soumettre.fr/)
-- [CodeBrisk](https://codebrisk.com)
-- [1Forge](https://1forge.com)
-- [TECPRESSO](https://tecpresso.co.jp/)
-- [Runtime Converter](http://runtimeconverter.com/)
-- [WebL'Agence](https://weblagence.com/)
-- [Invoice Ninja](https://www.invoiceninja.com)
-- [iMi digital](https://www.imi-digital.de/)
-- [Earthlink](https://www.earthlink.ro/)
-- [Steadfast Collective](https://steadfastcollective.com/)
-- [We Are The Robots Inc.](https://watr.mx/)
-- [Understand.io](https://www.understand.io/)
-- [Abdel Elrafa](https://abdelelrafa.com)
-- [Hyper Host](https://hyper.host)
-- [Appoly](https://www.appoly.co.uk)
-- [OP.GG](https://op.gg)
+```
+php artisan migrate
+```
+
+Install passport keys
+
+```
+php artisan passport:install
+```
+
+get the client id and secret and put them in the .env file
+
+```env
+PASSPORT_CLIENT_ID=2
+PASSPORT_CLIENT_SECRET=tsN2IOJ0kgA7yxPNxPvnZ5j1LAmYJUbVMpwqNJGp
+```
+
+create a github oauth app for `login using github`. Provide **Authorization callback URL** as `https://${SERVER_BASE_URL}/login/github/callback`.
+
+get the client id and secret and put them in the .env file
+
+```
+GITHUB_CLIENT_ID=61e48aa8c7479b9ae45a
+GITHUB_CLIENT_SECRET=c0e3e758efd4ddf9580e16170400695fb2e0fe32
+```
+
+## Roadmap for version 1.0.0
+
+Morselo is still under heavy development, We decided to ship it in this early stage so you can help us make it better.
+
+Here's the plan for what's coming:
+
+-   [x] Social login via **Github**
+-   [x] Feeds of latest snippet
+-   [x] Lists all tags (categories) in categories page
+-   [x] Tag wise feed listing
+-   [x] Admin - create snippet
+-   [x] Admin - edit snippet
+-   [x] Dev can like, bookmark snippets if logged in
+-   [x] List bookmarks and dev's snippets
+-   [ ] Unit Test
+-   [ ] Public search page using algolia
+-   [ ] Social login via **Twitter**
+
+## Roadmap for version 2.0.0
+
+-   [ ] snippets can be make public and private
+-   [ ] private snippets will not come in public search or feeds
+-   [ ] follower and following concept
+-   [ ] allow devs to store snippets as gists in github (exceptions to be handled when login using twitter)
+-   [ ] many more to come...
+
+## Credits
+
+-   [Abhishek Sarmah](https://github.com/abhisheksarmah)
+-   [Mithicher Baro](https://github.com/mithicher)
 
 ## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+coming soon...
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Morselo is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+```
+
+```

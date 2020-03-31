@@ -1,10 +1,27 @@
 {
-    "name": "laravel/laravel",
+    "name": "morselo-server",
     "type": "project",
-    "description": "The Laravel Framework.",
+    "description": "The daily code excerpts for the developers",
+    "authors": [
+        {
+            "name": "Abhishek Sarmah",
+            "email": "abhisheksarmah660@gmail.com",
+            "homepage": "https://abhisheksarmah.github.io",
+            "role": "Developer"
+        },
+        {
+            "name": "Mithicher Baro",
+            "email": "mithnehu@gmail.com",
+            "homepage": "https://mithicher.github.io",
+            "role": "Developer"
+        }
+    ],
     "keywords": [
-        "framework",
-        "laravel"
+        "graphql",
+        "lighthouse",
+        "opensource",
+        "laravel",
+        "morselo"
     ],
     "license": "MIT",
     "require": {
