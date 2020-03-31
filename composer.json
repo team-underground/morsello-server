@@ -15,7 +15,8 @@
         "laravel/framework": "^6.2",
         "laravel/passport": "^8.4",
         "laravel/tinker": "^2.0",
-        "nuwave/lighthouse": "^4.9"
+        "nuwave/lighthouse": "^4.11",
+        "spatie/laravel-sluggable": "^2.2"
     },
     "require-dev": {
         "facade/ignition": "^1.4",

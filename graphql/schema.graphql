@@ -14,13 +14,15 @@ type Query {
     user(id: ID @eq): User @find
     me: User @auth @middleware(checks: ["auth:api"])
 
-    bits(orderBy: _ @orderBy): [Bit!]!
-        @middleware(checks: ["auth:api"])
-        @paginate(defaultCount: 10)
-    bit(id: ID @eq): Bit @find @middleware(checks: ["auth:api"])
+    bits(orderBy: _ @orderBy): [Bit!]! @paginate(defaultCount: 10)
+
+    bit(slug: String! @eq): Bit! @find
+
     bookmarks(first: Int, page: Int): [Bit!]!
         @paginate(builder: "App\\Bookmark@allBookmarks")
         @middleware(checks: ["auth:api"])
+
+    topSnippets: [Bit]! @field(resolver: "App\\GraphQL\\Queries\\BitQuery")
 }
 
 type Mutation {
@@ -86,7 +88,7 @@ type Mutation {
         title: String @rules(apply: ["required"])
         snippet: String @rules(apply: ["required"])
         tags: [String!] @rulesForArray(apply: ["required", "min:1", "max:3"])
-    ): Bit
+    ): Bit!
         @field(resolver: "App\\GraphQL\\Mutations\\BitMutator@store")
         @middleware(checks: ["auth:api"])
 
@@ -95,10 +97,10 @@ type Mutation {
         title: String @rules(apply: ["required"])
         snippet: String @rules(apply: ["required"])
         tags: [String!] @rulesForArray(apply: ["required", "min:1", "max:3"])
-    ): Bit
+    ): Bit!
         @field(resolver: "App\\GraphQL\\Mutations\\BitMutator@update")
         @middleware(checks: ["auth:api"])
-        @can(ability: "update", model: "App\\Bit")
+        @can(ability: "update", find: "id")
 
     # replyBit(
     #     bitId: Int! @rename(attribute: "bit_id") @rules(apply: ["required"])
@@ -126,6 +128,7 @@ type User {
     id: ID!
     name: String!
     email: String!
+    avatar: String
     created_at: DateTime!
     updated_at: DateTime!
     bits(first: Int!, page: Int!): [Bit!]! @hasMany(type: "paginator")
@@ -135,7 +138,9 @@ type User {
 
 type Bit {
     id: ID!
+    uuid: String!
     user_id: ID!
+    slug: String!
     title: String!
     snippet: String!
     created_at: DateTime!
@@ -144,6 +149,7 @@ type Bit {
     likes_count: Int! @count(relation: "likes")
     isLiked: Boolean! @method(name: "isLiked")
     isBookmarked: Boolean! @method(name: "isBookmarked")
+    bookmarks_count: Int! @count(relation: "bookmarks")
     tags: [String!]! @method(name: "associatedTags")
 }
 

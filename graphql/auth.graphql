@@ -7,12 +7,12 @@ input RefreshTokenInput {
     refresh_token: String
 }
 
-type User {
-    id: ID!
-    name: String!
-    email: String!
-    bits: [Bit!]! @hasMany(type: "paginator")
-}
+# type User {
+#     id: ID!
+#     name: String!
+#     email: String!
+#     bits: [Bit!]! @hasMany(type: "paginator")
+# }
 
 type AuthPayload {
     access_token: String

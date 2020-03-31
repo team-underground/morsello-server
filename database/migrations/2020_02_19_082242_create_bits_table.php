@@ -15,10 +15,12 @@ class CreateBitsTable extends Migration
     {
         Schema::create('bits', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->uuid('uuid')->unique();
+            $table->string('slug', 225)->unique();
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users');
-            $table->text('title');
-            $table->text('snippet');
+            $table->string('title', 125);
+            $table->longText('snippet');
             $table->timestamps();
         });
     }

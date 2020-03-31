@@ -14,8 +14,5 @@ class Bookmark
         return Bit::with('bookmarks')->whereHas('bookmarks', function ($query) {
             $query->where('user_id', auth()->id());
         });
-        // return DB::table('bits')
-        //     ->join('bookmarks', 'bits.id', '=', 'bookmarks.bit_id')
-        //     ->where('bookmarks.user_id', auth()->id());
     }
 }

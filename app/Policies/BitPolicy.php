@@ -5,7 +5,6 @@ namespace App\Policies;
 use App\Bit;
 use App\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Support\Facades\Log;
 
 class BitPolicy
 {
@@ -31,7 +30,7 @@ class BitPolicy
      */
     public function view(User $user, Bit $bit)
     {
-        //
+        return $user->id == $bit->user_id;
     }
 
     /**

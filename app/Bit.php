@@ -2,17 +2,39 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Bit extends Model
 {
+    use HasSlug;
+
+    /**
+     * Get the options for generating the slug.
+     */
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('title')
+            ->saveSlugsTo('slug');
+    }
+
     protected $fillable = [
         "title",
         "snippet"
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($bit) {
+            $bit->uuid = (string) Str::uuid();
+        });
+    }
 
     public function user()
     {
