@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Bit;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -30,16 +32,23 @@ class DashboardController extends Controller
             "November",
             "December"
         ];
-        $result = Bit::query()->where('user_id', auth()->id())->select([
-            DB::raw('count(id) as `total`'),
-            DB::raw("DATE_FORMAT(created_at, '%M') as month")
-        ])->groupBy('month')->orderBy('month')->pluck('total', 'month')->all();
+
+        if (Config::get('database.default') === 'pgsql') {
+            $monthRawQuery = DB::raw("DATE_PART('month', created_at) as month");
+        }
+        if (Config::get('database.default') === 'mysql') {
+            $monthRawQuery = DB::raw("month(created_at) as month");
+        }
+
+        $rawQueries = array_merge([DB::raw("count(id) as total")], [$monthRawQuery]);
+
+        $result = Bit::query()->where('user_id', auth()->id())->select($rawQueries)->groupBy('month')->orderBy('month')->pluck('total', 'month')->all();
 
         $data = [];
 
         foreach ($months as $key => $month) {
-            if (array_key_exists($month, $result)) {
-                $data[$month] = $result[$month];
+            if (array_key_exists($key + 1, $result)) {
+                $data[$month] = $result[$key + 1];
             } else {
                 $data[$month] = 0;
             }
