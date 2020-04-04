@@ -14,7 +14,8 @@ type Query {
     user(id: ID @eq): User @find
     me: User @auth @middleware(checks: ["auth:api"])
 
-    bits(orderBy: _ @orderBy): [Bit!]! @paginate(defaultCount: 10)
+    bits(search: String @search, orderBy: _ @orderBy): [Bit!]!
+        @paginate(defaultCount: 10)
 
     bit(slug: String! @eq): Bit! @find
 

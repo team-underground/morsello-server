@@ -36,6 +36,11 @@ class Bit extends Model
         });
     }
 
+    public static function search($searchTerm)
+    {
+        return self::where('title', 'like', '%' . $searchTerm . '%');
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);
