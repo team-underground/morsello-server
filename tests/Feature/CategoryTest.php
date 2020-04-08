@@ -2,90 +2,43 @@
 
 namespace Tests\Feature;
 
+use App\Bit;
+use App\User;
 use App\Category;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class CategoryTest extends TestCase
 {
     /** @test */
     public function testAllCategories()
     {
-        $this->signIn();
         $createdCategories = [];
-        $categories = [
-            "swift",
-            "kubernetes",
-            "laravel",
-            "computerscience",
-            "testing",
-            "opensource",
-            "docker",
-            "bash",
-            "ubuntu",
-            "blockchain",
-            "css",
-            "angular",
-            "flutter",
-            "c#",
-            "javascript",
-            "java",
-            "devops",
-            "android",
-            "rust",
-            "vscode",
-            "security",
-            "linux",
-            "machinelearning",
-            "git",
-            "dotnet",
-            "kotlin",
-            "ios",
-            "c++",
-            "graphql",
-            "django",
-            "dart",
-            "go",
-            "vim",
-            "npm",
-            "sql",
-            "aws",
-            "rails",
-            "elixir",
-            "react",
-            "typescript",
-            "python",
-            "career",
-            "vue",
-            "php",
-            "ruby",
-            "beginners",
-            "intermediate",
-            "advanched"
-        ];
-        foreach ($categories as $category) {
-            $createdCategories[] = create(Category::class, [
-                'name' => $category
-            ]);
+
+        foreach (range(1, 10) as $category) {
+            $createdCategories[] = create(Category::class);
         }
+
         /** @var \Illuminate\Foundation\Testing\TestResponse $response */
         $response = $this->graphQL(
             /** @lang GraphQL */
             '
-    {
-        categories { 
-            id
-            name  
-        }
-    }
-    '
+                {
+                    categories { 
+                        id
+                        name  
+                        icon
+                    }
+                }
+            '
         );
 
         $data = collect($createdCategories)->map(function ($category) {
             return [
                 'id' => $category->id,
-                'name' => $category->name
+                'name' => $category->name,
+                'icon' => $category->icon
             ];
         })->all();
 
@@ -94,5 +47,71 @@ class CategoryTest extends TestCase
                 'categories' => $data
             ]
         ]);
+    }
+
+    /** @test */
+    public function testCategoryWiseSnippetsAreReturned()
+    {
+        $category = create(Category::class);
+
+        $formattedBits = [];
+
+        foreach (range(1, 5) as $key => $value) {
+            $bit = create(Bit::class, ['snippet' => 'something']);
+            $bit->tags()->sync($category->id);
+            $formattedBits[] = [
+                'title' => $bit->title,
+                'snippet' => $bit->snippet,
+                'tags' => [$category->name]
+            ];
+        }
+
+        /** @var \Illuminate\Foundation\Testing\TestResponse $response */
+        $response = $this->graphQL(
+            /** @lang GraphQL */
+            '
+                query categoryWiseSnippet($name: String) {
+                    category(name: $name) {
+                        id
+                        name 
+                        icon 
+                        bits(first: 10) {
+                            paginatorInfo {
+                                total
+                                hasMorePages
+                            }
+                            data {
+                                title
+                                snippet
+                                tags
+                            }
+                        }
+                    }
+                }
+            ',
+            [
+                'name' => $category->name
+            ]
+        );
+
+        $response->assertExactJson([
+            'data' => [
+                'category' => [
+                    'id' => (string) $category->id,
+                    'name' => $category->name,
+                    'icon' => $category->icon,
+                    'bits' => [
+                        'paginatorInfo' => [
+                            'total' => 5,
+                            'hasMorePages' => false
+                        ],
+                        'data' => $formattedBits
+                    ]
+                ]
+            ]
+        ]);
+
+        $this->assertSame(false, $response->json("data.category.bits.paginatorInfo.hasMorePages"));
+        $this->assertSame(5, $response->json("data.category.bits.paginatorInfo.total"));
     }
 }

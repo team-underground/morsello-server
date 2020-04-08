@@ -19,10 +19,8 @@ class LikeMutator
      */
     public function __invoke($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
-        $bit = Bit::find($args['bitId']);
-
-        auth()->user()->likes()->toggle($bit->id);
-
+        $bit = Bit::findOrFail($args['bitId']);
+        auth()->user()->toggleLike($bit);
         return $bit;
     }
 }

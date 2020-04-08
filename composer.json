@@ -1,5 +1,5 @@
 {
-    "name": "morselo-server",
+    "name": "morselo/server",
     "type": "project",
     "description": "The daily code excerpts for the developers",
     "authors": [

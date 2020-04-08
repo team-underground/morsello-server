@@ -24,14 +24,14 @@ class BitTest extends TestCase
         $response = $this->graphQL(
             /** @lang GraphQL */
             '
-        mutation createBit($title: String, $snippet: String, $tags: [String!]) {
-            createBit(title: $title, snippet: $snippet, tags: $tags) {
-                id
-                title
-                snippet
-            }
-        }
-    ',
+                mutation createBit($title: String, $snippet: String, $tags: [String!]) {
+                    createBit(title: $title, snippet: $snippet, tags: $tags) {
+                        id
+                        title
+                        snippet
+                    }
+                }
+            ',
             [
                 'title' => 'Automatic testing proven to reduce stress levels in developers',
                 'snippet' => $snippet = $this->faker->sentence(200),
@@ -41,7 +41,15 @@ class BitTest extends TestCase
 
         // $response->dump();
 
+        $this->assertSame(
+            [
+                'Unauthenticated.'
+            ],
+            $response->json("errors.*.debugMessage")
+        );
+
         $errorExtension = $response->json("errors.*.extensions");
+
 
         $this->assertSame(
             [
@@ -108,12 +116,103 @@ class BitTest extends TestCase
     }
 
     /** @test */
+    function it_requires_a_title()
+    {
+        $response = $this->graphQL(
+            /** @lang GraphQL */
+            '
+                mutation createBit($title: String, $snippet: String, $tags: [String!]) {
+                    createBit(title: $title, snippet: $snippet, tags: $tags) {
+                        id
+                        title 
+                        snippet
+                        tags
+                    }
+                }
+            ',
+            [
+                'title' => $title = null,
+                'snippet' => $snippet = $this->faker->sentence(200),
+                'tags' => $tags = ['angular', 'swift', 'vue']
+            ]
+        );
+
+        $this->assertSame(
+            [
+                'The title field is required.'
+            ],
+            $response->json("errors.*.extensions.validation.title.*")
+        );
+    }
+
+    /** @test */
+    function it_requires_a_snippet()
+    {
+        $response = $this->graphQL(
+            /** @lang GraphQL */
+            '
+                mutation createBit($title: String, $snippet: String, $tags: [String!]) {
+                    createBit(title: $title, snippet: $snippet, tags: $tags) {
+                        id
+                        title 
+                        snippet
+                        tags
+                    }
+                }
+            ',
+            [
+                'title' => $title = $this->faker->title(),
+                'snippet' => $snippet = null,
+                'tags' => $tags = ['angular', 'swift', 'vue']
+            ]
+        );
+
+        $this->assertSame(
+            [
+                'The snippet field is required.'
+            ],
+            $response->json("errors.*.extensions.validation.snippet.*")
+        );
+    }
+
+    /** @test */
+    function it_is_required_to_associate_minimum_one_tag()
+    {
+        $response = $this->graphQL(
+            /** @lang GraphQL */
+            '
+                mutation createBit($title: String, $snippet: String, $tags: [String!]) {
+                    createBit(title: $title, snippet: $snippet, tags: $tags) {
+                        id
+                        title 
+                        snippet
+                        tags
+                    }
+                }
+            ',
+            [
+                'title' => $title = $this->faker->title(),
+                'snippet' => $snippet = $this->faker->sentence(5),
+                'tags' => $tags = []
+            ]
+        );
+
+        $this->assertSame(
+            [
+                'The tags field is required.'
+            ],
+            $response->json("errors.*.extensions.validation.tags.*")
+        );
+    }
+
+    /** @test */
     public function test_tags_are_associated_when_creating_bits()
     {
         $this->signIn();
-        foreach (range(1, 10) as $key => $value) {
-            create(Category::class);
-        }
+        create(Category::class, ['name' => 'angular']);
+        create(Category::class, ['name' => 'swift']);
+        create(Category::class, ['name' => 'vue']);
+
         $response = $this->graphQL(
             /** @lang GraphQL */
             '
@@ -129,18 +228,17 @@ class BitTest extends TestCase
             [
                 'title' => $title = 'Automatic testing proven to reduce stress levels in developers',
                 'snippet' => $snippet = $this->faker->sentence(200),
-                'tags' => $tags = Category::orderBy('name')->distinct()->limit(3)->get()->pluck('name')
+                'tags' => $tags = ['angular', 'swift', 'vue']
             ]
         );
 
-        // $response->dump();
         $response->assertJson([
             'data' => [
                 'createBit' => [
                     'id' => 1,
                     'title' => $title,
                     'snippet' => $snippet,
-                    'tags' => $tags->all()
+                    'tags' => $tags
                 ]
             ]
         ]);
@@ -152,13 +250,18 @@ class BitTest extends TestCase
     {
         $user = create(User::class);
         $this->signIn($user);
-        foreach (range(1, 5) as $key => $value) {
-            create(Category::class);
-        }
+
+        create(Category::class, ['name' => 'angular']);
+        create(Category::class, ['name' => 'swift']);
+        create(Category::class, ['name' => 'vue']);
+
+        create(Category::class, ['name' => 'java']);
+        create(Category::class, ['name' => 'python']);
 
         $bit = create(Bit::class, [
             'user_id' => $user->id
         ]);
+
         $bit->tags()->sync([1, 2, 3]);
 
         $response = $this->graphQL(
@@ -177,7 +280,7 @@ class BitTest extends TestCase
                 'id' => $bitId = $bit->id,
                 'title' => $title = 'Automatic testing proven to reduce stress levels in developers',
                 'snippet' => $snippet = $this->faker->sentence(200),
-                'tags' => $tags = Category::orderBy('name')->distinct()->limit(3)->get()->pluck('name')
+                'tags' => $tags = ['angular', 'python']
             ]
         );
 
@@ -187,11 +290,11 @@ class BitTest extends TestCase
                     'id' => $bit->id,
                     'title' => $title,
                     'snippet' => $snippet,
-                    'tags' => $tags->all()
+                    'tags' => $tags
                 ]
             ]
         ]);
-        $response->assertJsonCount(3, 'data.editBit.tags');
+        $response->assertJsonCount(2, 'data.editBit.tags');
     }
 
     /** @test */
@@ -230,6 +333,13 @@ class BitTest extends TestCase
 
         // $response->dump();
 
+        $this->assertSame(
+            [
+                'You are not authorized to access editBit'
+            ],
+            $response->json("errors.*.message")
+        );
+
         $errorExtension = $response->json("errors.*.extensions");
 
         $this->assertSame(
@@ -246,6 +356,56 @@ class BitTest extends TestCase
                 [
                     'extensions' => [
                         'category' => 'authorization'
+                    ]
+                ]
+            ]
+        ]);
+    }
+
+    /** @test */
+    public function test_top_snippets()
+    {
+        $user = $this->signIn();
+        $userOne = $this->signIn();
+        $bitOne = create(Bit::class, ['title' => 'Bit 1']);
+        $bitTwo = create(Bit::class, ['title' => 'Bit 2']);
+        $bitThree = create(Bit::class, ['title' => 'Bit 3']);
+
+        $user->toggleLike($bitOne);
+        $userOne->toggleLike($bitOne);
+
+        $user->toggleLike($bitTwo);
+
+        $response = $this->graphQL(
+            /** @lang GraphQL */
+            '
+                query topSnippets {
+                    topSnippets {
+                        id
+                        title   
+                        likes_count
+                    } 
+                }
+            '
+        );
+
+        $response->assertExactJson([
+            'data' => [
+                'topSnippets' => [
+                    [
+                        "id" => "1",
+                        "title" => "Bit 1",
+                        "likes_count" => 2
+                    ],
+                    [
+                        "id" => "2",
+                        "title" => "Bit 2",
+                        "likes_count" => 1
+                    ],
+                    [
+                        "id" => "3",
+                        "title" => "Bit 3",
+                        "likes_count" => 0
                     ]
                 ]
             ]

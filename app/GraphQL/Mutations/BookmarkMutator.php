@@ -20,10 +20,8 @@ class BookmarkMutator
      */
     public function __invoke($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
-        $bit = Bit::find($args['bitId']);
-
-        auth()->user()->bookmarks()->toggle($bit->id);
-
+        $bit = Bit::findOrFail($args['bitId']);
+        auth()->user()->toggleBookmark($bit);
         return $bit;
     }
 }

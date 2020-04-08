@@ -3,12 +3,16 @@
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 
 use App\Bit;
+use App\User;
+use Illuminate\Support\Str;
 use Faker\Generator as Faker;
 
-$factory->define(Bit::class, function (Faker $faker) {
+$factory->define(Bit::class, function (Faker $faker, $attributes = []) {
     return [
-        'user_id' => $faker->randomElement([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
-        'title' => $faker->sentence(5),
-        'snippet' => $faker->sentence(rand(500, 1000)),
+        'uuid' => Str::uuid(),
+        'user_id' => factory(User::class),
+        'title' => $title = $attributes['title'] ?? $faker->sentence(5),
+        'slug' => Str::slug($title),
+        'snippet' => $faker->sentence(rand(500, 1000))
     ];
 });

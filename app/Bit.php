@@ -32,7 +32,7 @@ class Bit extends Model
         parent::boot();
 
         static::creating(function ($bit) {
-            $bit->uuid = (string) Str::uuid();
+            $bit->uuid = Str::uuid();
         });
     }
 
@@ -41,15 +41,21 @@ class Bit extends Model
         return self::where('title', 'like', '%' . $searchTerm . '%');
     }
 
+    public static function topSnippets()
+    {
+        // for now we are returning the most liked snippets as top one
+        return self::withCount('likes')->orderBy('likes_count', 'desc')->limit(5)->get();
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function replies()
-    {
-        return $this->hasMany(Reply::class);
-    }
+    // public function replies()
+    // {
+    //     return $this->hasMany(Reply::class);
+    // }
 
     public function likes()
     {

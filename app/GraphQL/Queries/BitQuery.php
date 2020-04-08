@@ -19,6 +19,6 @@ class BitQuery
      */
     public function __invoke($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo)
     {
-        return Bit::inRandomOrder()->limit(5)->get();
+        return Bit::topSnippets();
     }
 }

@@ -57,4 +57,14 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Bit::class, 'bookmarks', 'user_id', 'bit_id');
     }
+
+    public function toggleBookmark(Bit $bit): array
+    {
+        return $this->bookmarks()->toggle($bit->id);
+    }
+
+    public function toggleLike(Bit $bit): array
+    {
+        return $this->likes()->toggle($bit->id);
+    }
 }

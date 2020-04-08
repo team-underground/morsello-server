@@ -58,7 +58,5 @@ class LoginController extends Controller
     {
         $user = Socialite::driver('github')->user();
         return redirect(url(config('app.front_url') . '/login/github/callback?token=' . $user->token . '&provider=github'));
-        // dd($user);
-        // $user->token;
     }
 }

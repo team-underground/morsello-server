@@ -113,6 +113,7 @@ $factory->define(Category::class, function (Faker $faker) {
         ]
     ];
     return [
-        'name' => $faker->randomElement($categories)
+        'name' => $faker->randomElement(array_column($categories, 'name')),
+        'icon' => $faker->randomElement(array_column($categories, 'icon'))
     ];
 });
