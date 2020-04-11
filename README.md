@@ -1,7 +1,6 @@
 # Morselo-server
 
 ![run-tests](https://github.com/team-underground/morselo-server/workflows/run-tests/badge.svg?branch=master)
-[![StyleCI](https://styleci.io/repos/251495954/shield)](https://styleci.io/repos/251495954)
 
 > Morselo - the daily code excerpts for the developers. Collect & organize code, snippets and notes. Manage and share your snippets with ease.
 
